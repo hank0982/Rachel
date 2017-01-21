@@ -62,17 +62,42 @@ function attentionEntity(session, args, next) {
     console.log(event);
     if (event.disease) {
         //call disease api
-        if(!event.people) {
-            session.send('who are you talking about?')
-            //event.people = session.
-        }
-        session.send('It is disease');
+        session.beginDialog('/attentionEvent', event);
+        //session.send('It is disease');
     } else {
         //call attention api
         session.send('It is attention');
     }
-    next({info: event.info})
+   // next({info: event.info})
 }
+
+bot.dialog('/attentionEvent', [
+    function(session, args, next) {
+        session.dialogData.event = args;
+        if(!args.people) {
+            builder.Prompts.text(session, 'Who are you talking about?');
+        } else {
+            next();
+        }
+    }, 
+    function(session, args, next) {
+        event = session.dialogData.event;
+        //console.log(args);
+        if(args.response)
+            event.people = args.response;
+        //console.log(event);
+        if(event.disease || (event.verb && event.object)) {
+            session.endDialogWithResult(event);
+        }else if (!event.verb){
+            builder.Prompts.text(session, 'What does ' + event.people + ' do?');
+        }else{
+            next();
+        }
+    },
+    function(session, args, next) {
+        session.endDialogWithResult(session.dialogData.event);
+    }
+]);
 
 function calendarEnding(session, results, next) {
     session.send('Add %s to calendar', results.info);
@@ -83,6 +108,7 @@ function todoEnding(session, results, next) {
 }
 
 function attentionEnding(session, results, next) {
+    console.log(results);
     session.send('OK, I will remind you %s later', results.info);
 }
 
