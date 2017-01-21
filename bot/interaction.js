@@ -14,6 +14,10 @@ const LuisModelUrl = 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/
 var recognizer = new builder.LuisRecognizer(LuisModelUrl);
 var dialog = new builder.IntentDialog({recognizers: [recognizer]});
 
+function calendarEnding(session, results, next) {
+    session.send('Add it to calendar');
+}
+
 function calendarEntity(session, args, next) {
     var entities = {};
     if (args) {
@@ -51,25 +55,23 @@ function attentionEntity(session, args, next) {
         }
 
         if(event.type == 'verb') {
-            event.verb = entity.entity;
+            event.verb = entity.entity.substring();
         }
 
         if(event.type == 'object') {
             event.object = entity.entity;
         }
     }
-
     console.log(event);
-    if (event.disease) {
-        //call disease api
-        session.beginDialog('/attentionEvent', event);
-        //session.send('It is disease');
-    } else {
-        //call attention api
-        session.send('It is attention');
-    }
-   // next({info: event.info})
+    session.beginDialog('/attentionEvent', event);
 }
+
+function attentionEnding(session, results, next) {
+    console.log(results);
+    session.send('OK, I will remind you');
+}
+
+
 
 bot.dialog('/attentionEvent', [
     function(session, args, next) {
@@ -95,22 +97,29 @@ bot.dialog('/attentionEvent', [
         }
     },
     function(session, args, next) {
-        session.endDialogWithResult(session.dialogData.event);
+        event = session.dialogData.event;
+        if(args.response)
+            event.verb = args.response;
+        if(event.object) {
+            session.endDialogWithResult(event);
+        }else {
+            builder.Prompts.text(session, event.people + ' ' + event.verb + ' what?');
+        }
+    },
+    function(session, args, next) {
+        event = session.dialogData.event;
+        event.object = args.response;
+        session.endDialogWithResult(event);
     }
 ]);
 
-function calendarEnding(session, results, next) {
-    session.send('Add %s to calendar', results.info);
-}
+
 
 function todoEnding(session, results, next) {
-    session.send('Add %s to todo list', results.info);
+    session.send('Add it to todo list');
 }
 
-function attentionEnding(session, results, next) {
-    console.log(results);
-    session.send('OK, I will remind you %s later', results.info);
-}
+
 
 dialog.matches("Calendar", [
     function(session, args, next) {
