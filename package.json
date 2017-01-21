@@ -18,6 +18,8 @@
   "homepage": "https://github.com/jacky841102/Rachel#readme",
   "dependencies": {
     "botbuilder": "^3.5.3",
+    "querystring": "^0.2.0",
+    "request": "^2.79.0",
     "restify": "^4.3.0"
   }
 }
