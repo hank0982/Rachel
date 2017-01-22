@@ -220,22 +220,19 @@ bot.dialog('/choice', [
             if (results.response.index === 2) {
                 session.beginDialog('/attentionEvent', temp);
             }else if(results.response.index == 3) {
-            client.getMaster('5566',function(results){
+               client.getMaster('5566', function(error, res, body){
+                var reminder = JSON.parse(body).reminder;
+                console.log(reminder);
                 var str = '';
-                for(var todo of results.reminder) {
-                    str += todo + '\n';
+                for(var todo of reminder) {
+                    str += todo.info + '\n\n';
                 }
                 session.send(str);
             });
+        }else {
+            session.endDialog();
         }
-        if (temp) {
-            next();
-        }
-    }},
-    function (session, results, next) {
-
-        console.log(results);
-    }
+    }}
 ]);
 
 
