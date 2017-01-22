@@ -58,7 +58,7 @@ module.exports = {
 
     addTodo: function(id, json, callback) {
         request.put({
-            url: 'http://2017rachel.azurewebsites.net/master/' + id + '/reminder',
+            url: 'http://2017rachel.azurewebsites.net/api/master/' + id + '/reminder',
             form: json
         }, callback);
     },

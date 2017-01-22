@@ -167,7 +167,7 @@ function todoEntity(session, args, next) {
         }
         if (entity.type.length > 16) {
             if (entity.type.slice(0, 16) == 'builtin.datetime') {
-                event.endTime = entity.resolution;
+                event.endTime = entity.resolution.date;
             }
         }
         if (entity.type == 'object') {
